@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract MyToken is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
+contract Minter is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
@@ -15,12 +15,12 @@ contract MyToken is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
     uint256 public mintValue;
     mapping(string => uint8) public existingURIs;
 
-    constructor(uint256 _mintValue) ERC721("MyToken", "MTK") {
-        mintValue = _mintValue;
+    constructor() ERC721("Minter", "MIN") {
+        mintValue = 0.05 ether;
     }
 
     function _baseURI() internal pure override returns (string memory) {
-        return "ipfs://"; // TODO
+        return "ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ";
     }
 
     function _mintNFT(address to, string memory uri) internal returns(uint256) {
@@ -68,6 +68,10 @@ contract MyToken is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         require(msg.value >= mintValue, "Need to pay up");
 
         return _mintNFT(to, uri);
+    }
+
+    function count() public view returns (uint256) {
+        return _tokenIdCounter.current();
     }
 
     function withdraw() external onlyOwner {
