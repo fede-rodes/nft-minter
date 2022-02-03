@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "hardhat/console.sol";
 
 contract Minter is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
     using Counters for Counters.Counter;
@@ -31,6 +32,9 @@ contract Minter is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         existingURIs[uri] = 1;
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
+
+        console.log("tokenId", tokenId);
+        console.log("uri", uri);
 
         return tokenId;
     }
