@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "hardhat/console.sol";
 
 contract Minter is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
@@ -24,23 +25,25 @@ contract Minter is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         return "ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ";
     }
 
-    function _mintNFT(address to, string memory uri) internal returns(uint256) {
+    function _mintNFT(address to) internal returns(uint256) {
+
+        _tokenIdCounter.increment();
+        uint256 tokenId = _tokenIdCounter.current();
+        console.log("tokenId", tokenId);
+        string memory uri =  string(abi.encodePacked("/", Strings.toString(tokenId), ".png"));
+        console.log("uri", uri);
+
         require(existingURIs[uri] != 1, "NFT already minted!");
 
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
         existingURIs[uri] = 1;
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
 
-        console.log("tokenId", tokenId);
-        console.log("uri", uri);
-
         return tokenId;
     }
 
-    function safeMint(address to, string memory uri) public onlyOwner {
-        _mintNFT(to, uri);
+    function safeMint(address to) public onlyOwner {
+        _mintNFT(to);
     }
 
     // The following functions are overrides required by Solidity.
@@ -68,10 +71,10 @@ contract Minter is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         return existingURIs[uri] == 1;
     }
 
-    function payToMint(address to, string memory uri) public payable returns (uint256) {
+    function payToMint(address to) public payable returns (uint256) {
         require(msg.value >= mintValue, "Need to pay up");
 
-        return _mintNFT(to, uri);
+        return _mintNFT(to);
     }
 
     function count() public view returns (uint256) {
