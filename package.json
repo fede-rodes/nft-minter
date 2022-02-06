@@ -12,6 +12,7 @@
     "gas:mainnet-fork": "REPORT_GAS=true FORK=mainnet hardhat test",
     "deploy": "hardhat run scripts/deploy.ts",
     "dev": "hardhat node & hardhat run --network localhost scripts/deploy.ts",
+    "start": "concurrently \"yarn run dev\" \"cd app && yarn run dev\"",
     "dev:kovan-fork": "FORK=kovan hardhat dev scripts/deploy.ts",
     "dev:mainnet-fork": "FORK=mainnet hardhat dev scripts/deploy.ts",
     "coverage": "hardhat coverage",
@@ -31,6 +32,7 @@
     "@typescript-eslint/eslint-plugin": "^4.29.1",
     "@typescript-eslint/parser": "^4.29.1",
     "chai": "^4.2.0",
+    "concurrently": "^7.0.0",
     "dotenv": "^10.0.0",
     "eslint": "^7.29.0",
     "eslint-config-prettier": "^8.3.0",
@@ -50,5 +52,8 @@
     "ts-node": "^10.1.0",
     "typechain": "^5.1.2",
     "typescript": "^4.5.2"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.4.2"
   }
 }
