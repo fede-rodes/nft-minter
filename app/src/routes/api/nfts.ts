@@ -12,6 +12,9 @@ const RPC_URLS = {
   1337: 'http://127.0.0.1:8545',
 }
 
+// TODO: implement pagination (offset, limit)
+// TODO: query data from   // const imageURI = `https://gateway.pinata.cloud/ipfs/${contentId}/${tokenId}.png`
+
 /** @type {import('@sveltejs/kit').RequestHandler} */
 export async function get() {
   // Using a `network` provider to query data regardless of the user logged in state.
@@ -25,9 +28,18 @@ export async function get() {
     // Number of NFTs minted so far.
     const nftsCount = parseInt(((await contract.count()) as BigNumber).toString(), 10)
 
+    // Get token URIs
+    const promises = []
+    for (let tokenId = 1; tokenId < nftsCount + 1; tokenId++) {
+      promises.push(contract.tokenURI(tokenId))
+    }
+    const tokenUris = await Promise.all(promises)
+
     return {
       body: {
-        nftsCount,
+        nfts: tokenUris.map(function (tokenUri, index) {
+          return { tokenId: index + 1, tokenUri }
+        }),
       },
     }
   } catch (err) {

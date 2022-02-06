@@ -4,11 +4,11 @@
     const res = await fetch('/api/nfts')
 
     if (res.ok) {
-      const { nftsCount } = await res.json()
+      const { nfts } = await res.json()
 
       return {
         props: {
-          nftsCount,
+          nfts,
         },
       }
     }
@@ -24,14 +24,14 @@
   import { utils } from 'ethers'
   import { signer, provider, signerAddress } from 'svelte-ethers-store'
   import { minterContract } from '$contracts/Minter'
-  import { NFTImage } from '$lib/nft_image'
+  import { NFT } from '$lib/nft'
 
-  export let nftsCount = 0
+  export let nfts: [{ tokenId: number; tokenUri: string }] | [] = []
 
   async function refetchNFTs() {
     try {
       const res = await load({ fetch })
-      nftsCount = res.props.nftsCount
+      nfts = res.props.nfts
     } catch (err) {
       console.log(`Error during NFTs refetch: ${err}`)
     }
@@ -59,12 +59,12 @@
 <section>
   <h1>NFTs collection</h1>
 
-  <p>Count: {nftsCount}</p>
+  <p>Count: {nfts.length}</p>
 
   <button type="button" on:click={handleMint}>Mint</button>
 
-  {#each [...Array(nftsCount + 1).keys()].slice(1).reverse() as tokenId}
-    <NFTImage {tokenId} />
+  {#each nfts.reverse() as nft}
+    <NFT {nft} />
   {/each}
 </section>
 

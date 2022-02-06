@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "hardhat/console.sol";
 
 contract Minter is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
     using Counters for Counters.Counter;
@@ -26,12 +25,9 @@ contract Minter is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
     }
 
     function _mintNFT(address to) internal returns(uint256) {
-
         _tokenIdCounter.increment();
         uint256 tokenId = _tokenIdCounter.current();
-        console.log("tokenId", tokenId);
         string memory uri =  string(abi.encodePacked("/", Strings.toString(tokenId), ".png"));
-        console.log("uri", uri);
 
         require(existingURIs[uri] != 1, "NFT already minted!");
 
