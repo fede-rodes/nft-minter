@@ -1,29 +1,53 @@
+<script context="module" lang="ts">
+  /** @type {import('@sveltejs/kit').Load} */
+  export async function load({ fetch }) {
+    const res = await fetch('/api/nfts')
+
+    if (res.ok) {
+      const { nftsCount } = await res.json()
+
+      return {
+        props: {
+          nftsCount,
+        },
+      }
+    }
+
+    return {
+      status: 500,
+      error: new Error(`Could not load ${JSON.stringify(await res.json())}`),
+    }
+  }
+</script>
+
 <script lang="ts">
   import { utils } from 'ethers'
   import { signer, provider, signerAddress } from 'svelte-ethers-store'
-  import { MinterContract } from '$contracts/Minter'
-import { NFTImage } from '$lib/nft_image'
+  import { minterContract } from '$contracts/Minter'
+  import { NFTImage } from '$lib/nft_image'
 
-  const CONTENT_ID = 'QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ'
-  let count = 0
+  export let nftsCount = 0
 
-  const getCount = async () => {
-    const contract = MinterContract($signer, $provider)
-    count = parseInt((await contract.count()).toString(), 10)
+  async function refetchNFTs() {
+    try {
+      const res = await load({ fetch })
+      nftsCount = res.props.nftsCount
+    } catch (err) {
+      console.log(`Error during NFTs refetch: ${err}`)
+    }
   }
 
-  const handleMint = async () => {
-    const contract = MinterContract($signer, $provider)
-    const _count = parseInt((await contract.count()).toString(), 10)
-    // const metadataURI = `${CONTENT_ID}/${_count + 1}.json`
-    // console.log({ metadataURI, signerAddress: $signerAddress })
-    const tx = await contract.payToMint($signerAddress, { gasLimit: 2000000, value: utils.parseEther("0.05") })
-    tx.wait()
-  }
-
-  $: {
-    if ($provider != null) {
-      getCount()
+  async function handleMint() {
+    try {
+      const contract = minterContract($provider, $signer)
+      const tx = await contract.payToMint($signerAddress, {
+        gasLimit: 2000000,
+        value: utils.parseEther('0.05'),
+      })
+      tx.wait()
+      await refetchNFTs()
+    } catch (err) {
+      console.log(`Error during mint: ${JSON.stringify(err, null, 2)}`)
     }
   }
 </script>
@@ -34,14 +58,14 @@ import { NFTImage } from '$lib/nft_image'
 
 <section>
   <h1>NFTs collection</h1>
-    <p>Count: {count}</p>
-    {#each [...Array(count+1).keys()].slice(1) as tokenId}
-      <NFTImage {tokenId} />
-    {/each}
 
-    <button type="button" on:click="{handleMint}">
-      Mint
-    </button>
+  <p>Count: {nftsCount}</p>
+
+  <button type="button" on:click={handleMint}>Mint</button>
+
+  {#each [...Array(nftsCount + 1).keys()].slice(1).reverse() as tokenId}
+    <NFTImage {tokenId} />
+  {/each}
 </section>
 
 <style>

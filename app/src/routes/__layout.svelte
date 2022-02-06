@@ -1,13 +1,13 @@
 <script lang="ts">
   import { Header } from '$lib/header'
-  import { Providers } from '$lib/providers'
+  import { InjectedProvider } from '$lib/injected_provider'
   import '../app.css'
 </script>
 
 <Header />
 
 <main>
-  <Providers />
+  <InjectedProvider />
   <slot />
 </main>
 
