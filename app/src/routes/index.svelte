@@ -22,8 +22,8 @@
 
 <script lang="ts">
   import { utils } from 'ethers'
-  import { signer, provider, signerAddress } from 'svelte-ethers-store'
-  import { minterContract } from '$contracts/Minter'
+  import { signer, signerAddress } from 'svelte-ethers-store'
+  import { MinterContract } from '$contracts/Minter'
   import { NFT } from '$lib/nft'
 
   export let nfts: [{ tokenId: number; tokenUri: string }] | [] = []
@@ -39,8 +39,8 @@
 
   async function handleMint() {
     try {
-      const contract = minterContract($provider, $signer)
-      const tx = await contract.payToMint($signerAddress, {
+      const minter = new MinterContract($signer)
+      const tx = await minter.payToMint($signerAddress, {
         gasLimit: 2000000,
         value: utils.parseEther('0.05'),
       })
@@ -61,7 +61,9 @@
 
   <p>Count: {nfts.length}</p>
 
-  <button type="button" on:click={handleMint}>Mint</button>
+  {#if $signer != null}
+    <button type="button" on:click={handleMint}>Mint</button>
+  {/if}
 
   {#each nfts.reverse() as nft}
     <NFT {nft} />

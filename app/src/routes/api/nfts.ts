@@ -1,5 +1,5 @@
 import { providers, BigNumber } from 'ethers'
-import { minterContract } from '$contracts/Minter'
+import { MinterContract } from '$contracts/Minter'
 
 // This code runs on the server only, then secrets are safe.
 const CHAIN_ID = parseInt(import.meta.env.VITE_CHAIN_ID, 10)
@@ -13,7 +13,7 @@ const RPC_URLS = {
 }
 
 // TODO: implement pagination (offset, limit)
-// TODO: query data from   // const imageURI = `https://gateway.pinata.cloud/ipfs/${contentId}/${tokenId}.png`
+// TODO: query data from `https://gateway.pinata.cloud/ipfs/${contentId}/${tokenId}.png`
 
 /** @type {import('@sveltejs/kit').RequestHandler} */
 export async function get() {
@@ -23,15 +23,15 @@ export async function get() {
   const provider = new providers.JsonRpcProvider(RPC_URLS[CHAIN_ID])
 
   try {
-    const contract = minterContract(provider)
+    const minter = new MinterContract(provider)
 
     // Number of NFTs minted so far.
-    const nftsCount = parseInt(((await contract.count()) as BigNumber).toString(), 10)
+    const nftsCount = parseInt(((await minter.count()) as BigNumber).toString(), 10)
 
     // Get token URIs
     const promises = []
     for (let tokenId = 1; tokenId < nftsCount + 1; tokenId++) {
-      promises.push(contract.tokenURI(tokenId))
+      promises.push(minter.tokenURI(tokenId))
     }
     const tokenUris = await Promise.all(promises)
 
