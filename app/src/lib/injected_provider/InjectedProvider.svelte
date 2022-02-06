@@ -33,10 +33,6 @@
   onMount(connect)
 </script>
 
-<svelte:head>
-  <title>About</title>
-</svelte:head>
-
 {#if pending}connecting...{/if}
 
 {#if $connected}
