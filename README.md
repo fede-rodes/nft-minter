@@ -1,16 +1,8 @@
 # Getting Started
 
-Start a local node
-
-`npx hardhat node`
-
-Open a new terminal and deploy the smart contract in the localhost network
-
-`npx hardhat run --network localhost scripts/deploy.ts`
-
-As general rule, you can target any network configured in the hardhat.config.js
-
-`npx hardhat run --network <your-network> scripts/deploy.ts`
+1. After cloning the repo `yarn install`
+2. Create a `.env` file from `.env.example` filling all required information
+3. Run locally both server and client by running: `yarn run start`
 
 # Advanced Sample Hardhat Project
 
