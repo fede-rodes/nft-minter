@@ -1,15 +1,29 @@
 /// <reference types="cypress" />
 
-describe('Index', function () {
-  this.beforeEach(function () {
+describe('Index page', () => {
+  beforeEach(() => {
     cy.visit('/')
   })
 
-  it('displays the page title', function () {
+  it('shows page content', () => {
     cy.title().should('eq', 'Home')
+    cy.contains('button', 'Connect with Metamask').should('be.enabled')
+    cy.contains('h1', 'NFTs collection').should('exist')
+    cy.request('/api/nfts')
+      .its('body')
+      .then(({ nfts }) => {
+        cy.contains('p', `Count: ${nfts.length}`).should('exist')
+      })
   })
 
-  it('contains a button to connect to the injected provider', function () {
-    cy.contains('button', 'Connect with Metamask').should('be.enabled')
+  it('shows minted NFTs from fixtures', () => {
+    cy.intercept('/api/nfts', { fixture: 'nfts.json' }).as('nfts.json')
+    cy.wait('@nfts.json').then(({ response }) => {
+      const { nfts } = response.body
+
+      nfts.forEach((nft) => {
+        cy.log(nft)
+      })
+    })
   })
 })

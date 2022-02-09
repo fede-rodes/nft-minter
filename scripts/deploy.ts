@@ -5,7 +5,7 @@
 // Runtime Environment's members available in the global scope.
 import { ethers } from "hardhat";
 
-async function main() {
+const main = async () => {
   // Hardhat always runs the compile task when running scripts with its command
   // line interface.
   //
@@ -20,7 +20,7 @@ async function main() {
   await minter.deployed();
 
   console.log("Minter deployed to:", minter.address);
-}
+};
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

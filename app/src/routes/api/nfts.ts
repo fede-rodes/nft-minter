@@ -16,7 +16,7 @@ const RPC_URLS = {
 // TODO: query data from `https://gateway.pinata.cloud/ipfs/${contentId}/${tokenId}.png`
 
 /** @type {import('@sveltejs/kit').RequestHandler} */
-export async function get() {
+export const get = async () => {
   // Using a `network` provider to query data regardless of the user logged in state.
   // By using a `network` provider we can perform calls to the Ethereum blockchain (for
   // instance getting some public variable's value) but we cannot sign any transactions.
@@ -30,16 +30,19 @@ export async function get() {
 
     // Get token URIs
     const promises = []
+
     for (let tokenId = 1; tokenId < nftsCount + 1; tokenId++) {
       promises.push(minter.tokenURI(tokenId))
     }
+
     const tokenUris = await Promise.all(promises)
 
     return {
       body: {
-        nfts: tokenUris.map(function (tokenUri, index) {
-          return { tokenId: index + 1, tokenUri }
-        }),
+        nfts: tokenUris.map((tokenUri, index) => ({
+          tokenId: index + 1,
+          tokenUri,
+        })),
       },
     }
   } catch (err) {

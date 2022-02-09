@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
   /** @type {import('@sveltejs/kit').Load} */
-  export async function load({ fetch }) {
+  export const load = async ({ fetch }) => {
     const res = await fetch('/api/nfts')
 
     if (res.ok) {
@@ -28,7 +28,7 @@
 
   export let nfts: [{ tokenId: number; tokenUri: string }] | [] = []
 
-  async function refetchNFTs() {
+  const refetchNFTs = async () => {
     try {
       const res = await load({ fetch })
       nfts = res.props.nfts
@@ -37,7 +37,7 @@
     }
   }
 
-  async function handleMint() {
+  const handleMint = async () => {
     try {
       const minter = new MinterContract($signer)
       const tx = await minter.payToMint($signerAddress, {
