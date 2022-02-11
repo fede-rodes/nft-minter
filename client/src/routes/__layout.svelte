@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Header } from '$lib/header'
-  import { InjectedProvider } from '$lib/injected_provider'
+  import { Header } from '$components/header'
+  import { InjectedProvider } from '$components/injected_provider'
   import '../app.css'
 </script>
 
