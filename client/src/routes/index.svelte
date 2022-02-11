@@ -24,7 +24,7 @@
   import { utils } from 'ethers'
   import { signer, signerAddress } from 'svelte-ethers-store'
   import { MinterContract } from '$contracts/Minter'
-  import { NFT } from '$lib/nft'
+  import { NFT } from '$components/nft'
 
   export let nfts: [{ tokenId: number; tokenUri: string }] | [] = []
 
