@@ -65,7 +65,7 @@
     <button type="button" on:click={handleMint}>Mint</button>
   {/if}
 
-  {#each nfts.reverse() as nft}
+  {#each nfts.reverse() as nft (nft.tokenId)}
     <NFT {nft} />
   {/each}
 </section>
