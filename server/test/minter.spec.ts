@@ -6,6 +6,7 @@ describe("Minter contract", () => {
   let owner: Signer;
   let alice: Signer;
   let bob: Signer;
+  let ownerAddress: string;
   let aliceAddress: string;
   let bobAddress: string;
   let minter: Contract;
@@ -14,6 +15,7 @@ describe("Minter contract", () => {
   before(async () => {
     [owner, alice, bob] = await ethers.getSigners();
 
+    ownerAddress = await owner.getAddress();
     aliceAddress = await alice.getAddress();
     bobAddress = await bob.getAddress();
 
@@ -47,9 +49,13 @@ describe("Minter contract", () => {
     //   "strength": 20
     // }
 
+    expect(await minter.balanceOf(aliceAddress)).to.be.equal(0);
+    expect(await minter.mintedURIs(metadata)).to.be.false;
+    expect(await minter.minterAddresses(aliceAddress)).to.be.false;
+
     const tx = (await minter
       .connect(alice)
-      .mintNFT(aliceAddress, metadata)) as ContractTransaction;
+      .mintNFT(metadata)) as ContractTransaction;
     const txReceipt = await tx.wait();
 
     const event = txReceipt?.events ? txReceipt.events[0] : null;
@@ -60,17 +66,61 @@ describe("Minter contract", () => {
 
     expect(tokenId).to.be.equal(1);
     expect(tokenURI).to.be.equal(metadata);
+    expect(await minter.balanceOf(aliceAddress)).to.be.equal(1);
+    expect(await minter.mintedURIs(metadata)).to.be.true;
+    expect(await minter.minterAddresses(aliceAddress)).to.be.true;
   });
 
   it("should not be possible to mint the same NFT twice", async () => {
     const metadata = "https://game.example/item-id-8u5h2m.json";
 
-    (await minter
-      .connect(alice)
-      .mintNFT(aliceAddress, metadata)) as ContractTransaction;
+    await minter.connect(alice).mintNFT(metadata);
 
-    await expect(
-      minter.connect(bob).mintNFT(bobAddress, metadata)
-    ).to.be.revertedWith("Minter: NFT already minted!");
+    await expect(minter.connect(bob).mintNFT(metadata)).to.be.revertedWith(
+      "Minter: NFT already minted!"
+    );
   });
+
+  it("should not be possible to mint two NFTs using the same account", async () => {
+    const metadata1 = "https://game.example/item-id-8u5h2m.json";
+    const metadata2 = "https://game.example/item-id-3x9jsh.json";
+
+    await minter.connect(alice).mintNFT(metadata1);
+
+    await expect(minter.connect(alice).mintNFT(metadata2)).to.be.revertedWith(
+      "Minter: address already used!"
+    );
+  });
+
+  it("should be possible to mint two NFTs using two different accounts", async () => {
+    const metadata1 = "https://game.example/item-id-8u5h2m.json";
+    const metadata2 = "https://game.example/item-id-3x9jsh.json";
+
+    expect(await minter.balanceOf(aliceAddress)).to.be.equal(0);
+    expect(await minter.balanceOf(bobAddress)).to.be.equal(0);
+
+    await minter.connect(alice).mintNFT(metadata1);
+    await minter.connect(bob).mintNFT(metadata2);
+
+    expect(await minter.balanceOf(aliceAddress)).to.be.equal(1);
+    expect(await minter.balanceOf(bobAddress)).to.be.equal(1);
+  });
+
+  it("should be possible for the owner to mint several NFTs", async () => {
+    const metadata1 = "https://game.example/item-id-8u5h2m.json";
+    const metadata2 = "https://game.example/item-id-3x9jsh.json";
+
+    expect(await minter.balanceOf(ownerAddress)).to.be.equal(0);
+
+    await minter.connect(owner).mintNFT(metadata1);
+    await minter.connect(owner).mintNFT(metadata2);
+
+    expect(await minter.balanceOf(ownerAddress)).to.be.equal(2);
+  });
+
+  // TODO: see how pinata works and if we can set a baseURI and avoid
+  // passing uri param on mintNFT call
+
+  // TODO test MAX_SUPPLY and in case of revert that mintedURIs and minterAddresses
+  // is set back to false
 });
