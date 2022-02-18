@@ -21,33 +21,53 @@
 </script>
 
 <script lang="ts">
-  import { utils } from 'ethers'
   import { signer, signerAddress } from 'svelte-ethers-store'
   import { MinterContract } from '$contracts/Minter'
   import { NFT } from '$components/nft'
 
-  export let nfts: [{ tokenId: number; tokenUri: string }] | [] = []
+  export let nfts: [{ tokenId: number; tokenURI: string }] | [] = []
+
+  // TODO: this should come from the server in order to know what's the
+  // next NFT to be minted, or try setting baseURI inside the smart contract
+  // and forget about passing the tokenURI from the client.
+  const NFTs = [
+    {
+      tokenId: 1,
+      tokenURI: "ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/1.json"
+    },
+    {
+      tokenId: 2,
+      tokenURI: "ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/2.json"
+    },
+    {
+      tokenId: 3,
+      tokenURI: "ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/3.json"
+    },
+    {
+      tokenId: 4,
+      tokenURI: "ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/4.json"
+    }
+  ]
 
   const refetchNFTs = async () => {
     try {
       const res = await load({ fetch })
       nfts = res.props.nfts
     } catch (err) {
-      console.log(`Error during NFTs refetch: ${err}`)
+      alert(`Error during NFTs refetch: ${err}`)
     }
   }
 
   const handleMint = async () => {
     try {
       const minter = new MinterContract($signer)
-      const tx = await minter.payToMint($signerAddress, {
-        gasLimit: 2000000,
-        value: utils.parseEther('0.05'),
-      })
+      const nextNFT = NFTs.find(({ tokenId }) => tokenId === nfts.length + 1)
+      if (nextNFT == null) alert('All NFTs have been minted')
+      const tx = await minter.mintNFT(nextNFT.tokenURI, { gasLimit: 2000000 }) // TODO: set gasLimit
       tx.wait()
       await refetchNFTs()
     } catch (err) {
-      console.log(`Error during mint: ${JSON.stringify(err, null, 2)}`)
+      alert(`Error during mint: ${JSON.stringify(err, null, 2)}`)
     }
   }
 </script>

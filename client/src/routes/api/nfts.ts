@@ -35,13 +35,13 @@ export const get = async () => {
       promises.push(minter.tokenURI(tokenId))
     }
 
-    const tokenUris = await Promise.all(promises)
+    const tokenURIs = await Promise.all(promises)
 
     return {
       body: {
-        nfts: tokenUris.map((tokenUri, index) => ({
+        nfts: tokenURIs.map((tokenURI, index) => ({
           tokenId: index + 1,
-          tokenUri,
+          tokenURI,
         })),
       },
     }
