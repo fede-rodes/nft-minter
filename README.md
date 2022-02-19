@@ -1,6 +1,6 @@
 # Getting Started
 
-You'll probably need node version 16 or higher installed in your machine.
+You'll probably need node version 16 or higher installed on your machine.
 
 1. After cloning the repo `yarn install`
 2. CD into `client` and create a `.env` (or `.env.local`) file from `.env.example` filling all required information. You can use the defaults when runnning locally.
