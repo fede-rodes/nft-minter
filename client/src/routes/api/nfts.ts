@@ -28,13 +28,14 @@ export const get = async () => {
     // Number of NFTs minted so far.
     const nftsCount = parseInt(((await minter.count()) as BigNumber).toString(), 10)
 
+    // Get tokens MAX_SUPPLY
+    const maxSupply = parseInt(((await minter.MAX_SUPPLY()) as BigNumber).toString(), 10)
+
     // Get token URIs
     const promises = []
-
     for (let tokenId = 1; tokenId < nftsCount + 1; tokenId++) {
       promises.push(minter.tokenURI(tokenId))
     }
-
     const tokenURIs = await Promise.all(promises)
 
     return {
@@ -43,6 +44,7 @@ export const get = async () => {
           tokenId: index + 1,
           tokenURI,
         })),
+        maxSupply,
       },
     }
   } catch (err) {
