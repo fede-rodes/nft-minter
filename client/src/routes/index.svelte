@@ -4,11 +4,12 @@
     const res = await fetch('/api/nfts')
 
     if (res.ok) {
-      const { nfts } = await res.json()
+      const { nfts, maxSupply } = await res.json()
 
       return {
         props: {
           nfts,
+          maxSupply,
         },
       }
     }
@@ -21,11 +22,14 @@
 </script>
 
 <script lang="ts">
-  import { signer, signerAddress } from 'svelte-ethers-store'
+  import { signer } from 'svelte-ethers-store'
   import { MinterContract } from '$contracts/Minter'
   import { NFT } from '$components/nft'
 
+  const COLLECTION_NAME = import.meta.env.VITE_COLLECTION_NAME
+
   export let nfts: [{ tokenId: number; tokenURI: string }] | [] = []
+  export let maxSupply: number
 
   // TODO: this should come from the server in order to know what's the
   // next NFT to be minted. Other apporach could be trying to set baseURI
@@ -34,20 +38,20 @@
   const NFTs = [
     {
       tokenId: 1,
-      tokenURI: "ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/1.json"
+      tokenURI: 'ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/1.json',
     },
     {
       tokenId: 2,
-      tokenURI: "ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/2.json"
+      tokenURI: 'ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/2.json',
     },
     {
       tokenId: 3,
-      tokenURI: "ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/3.json"
+      tokenURI: 'ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/3.json',
     },
     {
       tokenId: 4,
-      tokenURI: "ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/4.json"
-    }
+      tokenURI: 'ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/4.json',
+    },
   ]
 
   const refetchNFTs = async () => {
@@ -79,9 +83,13 @@
 </svelte:head>
 
 <section>
-  <h1>NFTs collection</h1>
+  <h1>{COLLECTION_NAME}</h1>
 
-  <p>Count: {nfts.length}</p>
+  <h2>
+    {nfts.length}/{maxSupply}
+    <br />
+    {COLLECTION_NAME} minted
+  </h2>
 
   {#if $signer != null}
     <button type="button" on:click={handleMint}>Mint</button>
