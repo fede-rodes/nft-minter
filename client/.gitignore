@@ -8,3 +8,5 @@ node_modules
 !.env.example
 .vercel
 .output
+/src/artifacts/**/*.json
+!/src/artifacts/contracts/Minter.sol/Minter.json
