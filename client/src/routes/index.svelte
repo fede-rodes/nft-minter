@@ -28,8 +28,9 @@
   export let nfts: [{ tokenId: number; tokenURI: string }] | [] = []
 
   // TODO: this should come from the server in order to know what's the
-  // next NFT to be minted, or try setting baseURI inside the smart contract
-  // and forget about passing the tokenURI from the client.
+  // next NFT to be minted. Other apporach could be trying to set baseURI
+  // inside the Minter smart contract and forget about passing the
+  // tokenURI from the client.
   const NFTs = [
     {
       tokenId: 1,
@@ -61,6 +62,7 @@
   const handleMint = async () => {
     try {
       const minter = new MinterContract($signer)
+      // Fetch the next NFT to be minted (this should come from the server).
       const nextNFT = NFTs.find(({ tokenId }) => tokenId === nfts.length + 1)
       if (nextNFT == null) alert('All NFTs have been minted')
       const tx = await minter.mintNFT(nextNFT.tokenURI, { gasLimit: 2000000 }) // TODO: set gasLimit
