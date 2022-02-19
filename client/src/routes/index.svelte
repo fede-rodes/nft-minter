@@ -60,6 +60,7 @@
     },
   ]
 
+  let minting = false
   let mintedTokenId: number
   $: mintedNFT = NFTs.find(({ tokenId }) => tokenId === mintedTokenId)
 
@@ -74,18 +75,21 @@
 
   const handleMint = async () => {
     try {
+      minting = true
+
       const minter = new MinterContract($signer)
-      // Fetch the next NFT to be minted (this should come from the server).
+      // Get next NFT to be minted based on the latest minted index.
       const nextNFT = NFTs.find(({ tokenId }) => tokenId === nfts.length + 1)
 
       if (nextNFT == null) {
         alert('All NFTs have been minted')
+        minting = false
         return
       }
 
       const tx = (await minter.mintNFT(nextNFT.tokenURI, {
-        gasLimit: 2000000,
-      })) as ContractTransaction // TODO: set gasLimit
+        gasLimit: 2000000, // TODO: set gasLimit
+      })) as ContractTransaction
       const txReceipt = await tx.wait()
 
       // Get latest minted NFT to be display on the UI.
@@ -97,6 +101,8 @@
     } catch (err) {
       alert(`Error during mint: ${JSON.stringify(err, null, 2)}`)
     }
+
+    minting = false
   }
 </script>
 
@@ -113,7 +119,7 @@
     {COLLECTION_NAME} minted
   </h2>
 
-  <button type="button" disabled={$signer == null} on:click={handleMint}>Mint</button>
+  <button type="button" disabled={$signer == null || minting} on:click={handleMint}>{minting ? 'Minting...' : 'Mint'}</button>
 
   {#if $signer == null}
     <p>Please, connect your wallet!</p>
