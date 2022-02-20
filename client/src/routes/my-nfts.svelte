@@ -108,7 +108,7 @@
 </script>
 
 <svelte:head>
-  <title>Home</title>
+  <title>Mint</title>
 </svelte:head>
 
 <section>

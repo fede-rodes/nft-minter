@@ -1,13 +1,11 @@
 <script lang="ts">
   import { Header } from '$components/header'
-  import { InjectedProvider } from '$components/injected_provider'
   import '../app.css'
 </script>
 
 <Header />
 
 <main>
-  <InjectedProvider />
   <slot />
 </main>
 
