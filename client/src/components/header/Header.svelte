@@ -4,7 +4,12 @@
   import logo from '$assets/svelte-logo.svg'
   import { shortAddress } from '$utils/short-address'
 
-  const routes = [
+  interface IRoute {
+    pathname: string
+    label: string
+  }
+
+  const routes: IRoute[] = [
     { pathname: '/', label: 'Mint' },
     { pathname: '/my-nfts', label: 'My NFTs' },
   ]
@@ -23,7 +28,9 @@
     </svg>
     <ul>
       {#each routes as { pathname, label }}
-        <li class:active={$page.url.pathname === pathname}><a sveltekit:prefetch href={pathname}>{label}</a></li>
+        <li class:active={$page.url.pathname === pathname}>
+          <a sveltekit:prefetch href={pathname}>{label}</a>
+        </li>
       {/each}
     </ul>
     <svg viewBox="0 0 2 3" aria-hidden="true">

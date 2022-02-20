@@ -120,7 +120,9 @@
     {COLLECTION_NAME} minted
   </h2>
 
-  <button type="button" disabled={$signer == null || minting} on:click={handleMint}>{minting ? 'Minting...' : 'Mint'}</button>
+  <button type="button" disabled={$signer == null || minting} on:click={handleMint}
+    >{minting ? 'Minting...' : 'Mint'}</button
+  >
 
   {#if $signer == null}
     <InjectedProvider />
