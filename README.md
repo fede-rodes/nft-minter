@@ -16,6 +16,7 @@ You'll probably need node version 16 or higher installed on your machine.
 - [https://nft.storage/docs](https://nft.storage/docs)
 - [https://eips.ethereum.org/EIPS/eip-721](https://eips.ethereum.org/EIPS/eip-721)
 - [https://eips.ethereum.org/EIPS/eip-1155](https://eips.ethereum.org/EIPS/eip-1155)
+- [https://blog.starton.io/deploy-your-nfts-on-blockchain-with-starton-ad7d4b2f9ea3](https://blog.starton.io/deploy-your-nfts-on-blockchain-with-starton-ad7d4b2f9ea3)
 
 ## Stuff
 
@@ -27,3 +28,17 @@ The main big difference between the two is that in an ERC721, every NFT is uniqu
 Meanwhile the ERC1155 enables you to create “collections” which are several copies of the same NFT.
 
 The ERC721, which is easier to use, still can be used to upload several copies of the same content, but is less optimised for this use case than the ERC1155.
+
+For our use case, we will choose to use the ERC721.
+Starton proposes two templates for the ERC721 : the Auto-increment and the Custom Uri.
+
+The Auto-Increment is preferable if the content of NFTs is stored on a centralised server.
+
+It will use a static url like “https://test.com/“ and append the NFT id at the end to reference the content.
+For exemple “https://test.com/123“ will reference the 123th NFT that has been minted.
+
+Of course, this is not very much in line with the decentralised philosophy as we could potentially change — or delete — the content associated to this id on our centralised server.
+
+This is why we will upload the content on a decentralised file storage system like IPFS instead.
+
+With this method, we will need to specify a URI for each NFT we will mint, and thus we will need to use the ERC721 Custom Uri template.
