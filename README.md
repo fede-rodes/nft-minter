@@ -18,7 +18,7 @@ You'll probably need node version 16 or higher installed on your machine.
 - [https://eips.ethereum.org/EIPS/eip-1155](https://eips.ethereum.org/EIPS/eip-1155)
 - [https://blog.starton.io/deploy-your-nfts-on-blockchain-with-starton-ad7d4b2f9ea3](https://blog.starton.io/deploy-your-nfts-on-blockchain-with-starton-ad7d4b2f9ea3)
 
-## Stuff
+## Difference between ERC721 and ERC1155
 
 There exist several standards of smart contracts that have been developed for NFTs.
 The most famous ones are the ERC721 and the ERC1155.
@@ -41,4 +41,12 @@ Of course, this is not very much in line with the decentralised philosophy as we
 
 This is why we will upload the content on a decentralised file storage system like IPFS instead.
 
+## Upload an image dynamically on IPFS
+
+The process of minting a new NFT and sending it to an address goes in three steps:
+
 With this method, we will need to specify a URI for each NFT we will mint, and thus we will need to use the ERC721 Custom Uri template.
+
+    We upload the content on IPFS (as it is too heavy to be stored on-chain) and get the CID of the content.
+    We upload a metadata object as a JSON file on IPFS as we do not reference the content directly in the contract. Instead, we put the CID of the content in a metadata object that we upload on IPFS.
+    We call the function “safeMint” of our smart contract, giving the CID of our metadata object and the address that will receive the NFT.
