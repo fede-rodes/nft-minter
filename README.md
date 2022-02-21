@@ -13,3 +13,4 @@ You'll probably need node version 16 or higher installed on your machine.
 - [https://ethereum.org/en/developers/tutorials/how-to-write-and-deploy-an-nft/](https://ethereum.org/en/developers/tutorials/how-to-write-and-deploy-an-nft/)
 - [https://docs.ipfs.io/how-to/mint-nfts-with-ipfs/#a-short-introduction-to-nfts](https://docs.ipfs.io/how-to/mint-nfts-with-ipfs/#a-short-introduction-to-nfts)
 - [https://docs.openzeppelin.com/contracts/4.x/erc721](https://docs.openzeppelin.com/contracts/4.x/erc721)
+- [https://nft.storage/docs](https://nft.storage/docs)
