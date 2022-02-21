@@ -14,3 +14,6 @@ You'll probably need node version 16 or higher installed on your machine.
 - [https://docs.ipfs.io/how-to/mint-nfts-with-ipfs/#a-short-introduction-to-nfts](https://docs.ipfs.io/how-to/mint-nfts-with-ipfs/#a-short-introduction-to-nfts)
 - [https://docs.openzeppelin.com/contracts/4.x/erc721](https://docs.openzeppelin.com/contracts/4.x/erc721)
 - [https://nft.storage/docs](https://nft.storage/docs)
+- [https://eips.ethereum.org/EIPS/eip-721](https://eips.ethereum.org/EIPS/eip-721)
+- [https://eips.ethereum.org/EIPS/eip-1155](https://eips.ethereum.org/EIPS/eip-1155)
+
