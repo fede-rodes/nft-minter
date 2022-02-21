@@ -17,3 +17,13 @@ You'll probably need node version 16 or higher installed on your machine.
 - [https://eips.ethereum.org/EIPS/eip-721](https://eips.ethereum.org/EIPS/eip-721)
 - [https://eips.ethereum.org/EIPS/eip-1155](https://eips.ethereum.org/EIPS/eip-1155)
 
+## Stuff
+
+There exist several standards of smart contracts that have been developed for NFTs.
+The most famous ones are the ERC721 and the ERC1155.
+
+The main big difference between the two is that in an ERC721, every NFT is unique which means you will have to reference the content for each of them.
+
+Meanwhile the ERC1155 enables you to create “collections” which are several copies of the same NFT.
+
+The ERC721, which is easier to use, still can be used to upload several copies of the same content, but is less optimised for this use case than the ERC1155.
