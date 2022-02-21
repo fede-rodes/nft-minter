@@ -1,5 +1,5 @@
 import { providers, BigNumber } from 'ethers'
-import { MinterContract } from '$contracts/Minter'
+import { Minter } from '$contracts/Minter'
 
 // This code runs on the server only, then secrets are safe.
 const CHAIN_ID = parseInt(import.meta.env.VITE_CHAIN_ID, 10)
@@ -23,7 +23,7 @@ export const get = async () => {
   const provider = new providers.JsonRpcProvider(RPC_URLS[CHAIN_ID])
 
   try {
-    const minter = new MinterContract(provider)
+    const minter = new Minter(provider)
 
     // Number of NFTs minted so far.
     const nftsCount = parseInt(((await minter.count()) as BigNumber).toString(), 10)

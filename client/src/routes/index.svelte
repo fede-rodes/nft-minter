@@ -23,9 +23,9 @@
 
 <script lang="ts">
   import type { ContractTransaction } from 'ethers'
-  import { signer } from 'svelte-ethers-store'
-  import { MinterContract } from '$contracts/Minter'
-  import { InjectedProvider } from '$components/injected-provider'
+  import { signer, signerAddress } from 'svelte-ethers-store'
+  import { Minter } from '$contracts/Minter'
+  import { Wallet } from '$components/wallet'
   import { NFT } from '$components/nft'
 
   const COLLECTION_NAME = import.meta.env.VITE_COLLECTION_NAME
@@ -78,7 +78,7 @@
     try {
       minting = true
 
-      const minter = new MinterContract($signer)
+      const minter = new Minter($signer)
       // Get next NFT to be minted based on the latest minted index.
       const nextNFT = NFTs.find(({ tokenId }) => tokenId === nfts.length + 1)
 
@@ -108,7 +108,7 @@
 </script>
 
 <svelte:head>
-  <title>Home</title>
+  <title>Mint</title>
 </svelte:head>
 
 <section>
@@ -124,8 +124,8 @@
     >{minting ? 'Minting...' : 'Mint'}</button
   >
 
-  {#if $signer == null}
-    <InjectedProvider />
+  {#if $signerAddress == null}
+    <Wallet />
     <p>Please, connect your wallet!</p>
   {/if}
 

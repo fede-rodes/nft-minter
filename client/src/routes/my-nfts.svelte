@@ -1,31 +1,8 @@
-<script context="module" lang="ts">
-  /** @type {import('@sveltejs/kit').Load} */
-  export const load = async ({ fetch }) => {
-    const res = await fetch('/api/nfts')
-
-    if (res.ok) {
-      const { nfts, maxSupply } = await res.json()
-
-      return {
-        props: {
-          nfts,
-          maxSupply,
-        },
-      }
-    }
-
-    return {
-      status: 500,
-      error: new Error(`Could not load ${JSON.stringify(await res.json())}`),
-    }
-  }
-</script>
-
 <script lang="ts">
-  import type { ContractTransaction } from 'ethers'
-  import { signer } from 'svelte-ethers-store'
-  import { MinterContract } from '$contracts/Minter'
-  import { InjectedProvider } from '$components/injected-provider'
+  import type { BigNumber } from 'ethers'
+  import { signer, signerAddress } from 'svelte-ethers-store'
+  import { Minter } from '$contracts/Minter'
+  import { Wallet } from '$components/wallet'
   import { NFT } from '$components/nft'
 
   const COLLECTION_NAME = import.meta.env.VITE_COLLECTION_NAME
@@ -34,9 +11,6 @@
     tokenId: number
     tokenURI: string
   }
-
-  export let nfts: INFT[] | [] = []
-  export let maxSupply: number
 
   // TODO: this should come from the server in order to know what's the
   // next NFT to be minted. Other apporach could be trying to set baseURI
@@ -61,82 +35,56 @@
     },
   ]
 
-  let minting = false
-  let mintedTokenId: number
-  $: mintedNFT = NFTs.find(({ tokenId }) => tokenId === mintedTokenId)
+  let tokenIds: number[] = []
 
-  const refetchNFTs = async () => {
+  $: nfts = NFTs.filter(({ tokenId }) => tokenIds.includes(tokenId))
+  $: balance = nfts.length || 0
+
+  const fetchNFTs = async (): Promise<void> => {
+    if ($signer == null || $signerAddress == null) {
+      nfts = []
+      return Promise.resolve(null)
+    }
+
     try {
-      const res = await load({ fetch })
-      nfts = res.props.nfts
+      const minter = new Minter($signer)
+
+      tokenIds = ((await minter.tokensOfOwner($signerAddress)) as BigNumber[]).map((bn) =>
+        parseInt(bn.toString(), 10),
+      )
     } catch (err) {
-      alert(`Error during NFTs refetching: ${err}`)
+      alert(`Error fetching: ${JSON.stringify(err, null, 2)}`)
     }
   }
 
-  const handleMint = async () => {
-    try {
-      minting = true
-
-      const minter = new MinterContract($signer)
-      // Get next NFT to be minted based on the latest minted index.
-      const nextNFT = NFTs.find(({ tokenId }) => tokenId === nfts.length + 1)
-
-      if (nextNFT == null) {
-        alert('All NFTs have been minted')
-        minting = false
-        return
-      }
-
-      const tx = (await minter.mintNFT(nextNFT.tokenURI, {
-        gasLimit: 2000000, // TODO: set gasLimit
-      })) as ContractTransaction
-      const txReceipt = await tx.wait()
-
-      // Get latest minted NFT to be display on the UI.
-      const event = txReceipt?.events ? txReceipt.events[0] : null
-      const value = event?.args ? event.args[2] : null
-      mintedTokenId = value.toNumber()
-
-      await refetchNFTs()
-    } catch (err) {
-      alert(`Error during mint: ${JSON.stringify(err, null, 2)}`)
+  $: {
+    if ($signer != null) {
+      fetchNFTs()
     }
-
-    minting = false
   }
 </script>
 
 <svelte:head>
-  <title>Mint</title>
+  <title>My NFTs</title>
 </svelte:head>
 
 <section>
   <h1>{COLLECTION_NAME}</h1>
 
-  <h2>
-    {nfts.length}/{maxSupply}
-    <br />
-    {COLLECTION_NAME} minted
-  </h2>
+  <h2>balance: {balance}</h2>
 
-  <button type="button" disabled={$signer == null || minting} on:click={handleMint}
-    >{minting ? 'Minting...' : 'Mint'}</button
-  >
-
-  {#if $signer == null}
-    <InjectedProvider />
+  {#if $signerAddress == null}
+    <Wallet />
     <p>Please, connect your wallet!</p>
   {/if}
 
-  {#if mintedNFT != null}
-    {#key mintedNFT.tokenId}
-      <NFT nft={mintedNFT} />
-    {/key}
-  {/if}
+  {#each nfts as nft (nft.tokenId)}
+    <NFT {nft} />
+  {/each}
 </section>
 
 <style>
+  /* TODO: this could be part of the layout */
   section {
     display: flex;
     flex-direction: column;
