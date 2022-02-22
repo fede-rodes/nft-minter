@@ -22,12 +22,14 @@ const config = {
     vite: {
       resolve: {
         alias: {
+          $types: path.resolve('./src/types'),
           $components: path.resolve('./src/components'),
           $utils: path.resolve('./src/utils'),
           $stores: path.resolve('./src/stores'),
           $assets: path.resolve('./src/assets'),
           $artifacts: path.resolve('./src/artifacts'),
           $contracts: path.resolve('./src/contracts'),
+          $database: path.resolve('./src/database'),
         },
       },
     },

@@ -4,11 +4,11 @@
     const res = await fetch('/api/nfts')
 
     if (res.ok) {
-      const { nfts, maxSupply } = await res.json()
+      const { nftsCount, maxSupply } = await res.json()
 
       return {
         props: {
-          nfts,
+          nftsCount,
           maxSupply,
         },
       }
@@ -24,53 +24,27 @@
 <script lang="ts">
   import type { ContractTransaction } from 'ethers'
   import { signer, signerAddress } from 'svelte-ethers-store'
+  import type { INFT } from '$types/index'
   import { Minter } from '$contracts/Minter'
   import { Wallet } from '$components/wallet'
   import { NFT } from '$components/nft'
 
   const COLLECTION_NAME = import.meta.env.VITE_COLLECTION_NAME
 
-  interface INFT {
-    tokenId: number
-    tokenURI: string
-  }
-
-  export let nfts: INFT[] | [] = []
+  export let nftsCount = 0
   export let maxSupply: number
-
-  // TODO: this should come from the server in order to know what's the
-  // next NFT to be minted. Other apporach could be trying to set baseURI
-  // inside the Minter smart contract and forget about passing the
-  // tokenURI from the client.
-  const NFTs: INFT[] = [
-    {
-      tokenId: 1,
-      tokenURI: 'ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/1.json',
-    },
-    {
-      tokenId: 2,
-      tokenURI: 'ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/2.json',
-    },
-    {
-      tokenId: 3,
-      tokenURI: 'ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/3.json',
-    },
-    {
-      tokenId: 4,
-      tokenURI: 'ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/4.json',
-    },
-  ]
 
   let minting = false
   let mintedTokenId: number
-  $: mintedNFT = NFTs.find(({ tokenId }) => tokenId === mintedTokenId)
+  let mintedNFT: INFT
 
-  const refetchNFTs = async () => {
+  const refetchStats = async () => {
     try {
       const res = await load({ fetch })
-      nfts = res.props.nfts
+      nftsCount = res.props.nftsCount
+      maxSupply = res.props.maxSupply
     } catch (err) {
-      alert(`Error during NFTs refetching: ${err}`)
+      alert(`Error during stats refetching: ${err}`)
     }
   }
 
@@ -79,8 +53,9 @@
       minting = true
 
       const minter = new Minter($signer)
-      // Get next NFT to be minted based on the latest minted index.
-      const nextNFT = NFTs.find(({ tokenId }) => tokenId === nfts.length + 1)
+
+      const res = await fetch('/api/get-next-mintable-token')
+      const nextNFT = (await res.json()).nft as INFT
 
       if (nextNFT == null) {
         alert('All NFTs have been minted')
@@ -88,17 +63,43 @@
         return
       }
 
+      await fetch('/api/update-token-data', {
+        method: 'POST',
+        body: JSON.stringify({
+          tokenURI: nextNFT.tokenURI,
+          status: 'MINTING',
+        }),
+        headers: { 'content-type': 'application/json' },
+      })
+
       const tx = (await minter.mintNFT(nextNFT.tokenURI, {
         gasLimit: 2000000, // TODO: set gasLimit
       })) as ContractTransaction
+
       const txReceipt = await tx.wait()
 
-      // Get latest minted NFT to be display on the UI.
+      // Get minted NFT to be display on the UI.
       const event = txReceipt?.events ? txReceipt.events[0] : null
       const value = event?.args ? event.args[2] : null
+
       mintedTokenId = value.toNumber()
 
-      await refetchNFTs()
+      mintedNFT = {
+        tokenId: mintedTokenId,
+        tokenURI: nextNFT.tokenURI,
+      }
+
+      await fetch('/api/update-token-data', {
+        method: 'POST',
+        body: JSON.stringify({
+          tokenURI: nextNFT.tokenURI,
+          status: 'MINTED',
+          tokenId: mintedTokenId,
+        }),
+        headers: { 'content-type': 'application/json' },
+      })
+
+      await refetchStats()
     } catch (err) {
       alert(`Error during mint: ${JSON.stringify(err, null, 2)}`)
     }
@@ -115,7 +116,7 @@
   <h1>{COLLECTION_NAME}</h1>
 
   <h2>
-    {nfts.length}/{maxSupply}
+    {nftsCount}/{maxSupply}
     <br />
     {COLLECTION_NAME} minted
   </h2>

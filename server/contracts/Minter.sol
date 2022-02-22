@@ -21,9 +21,9 @@ contract Minter is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
 
   constructor() ERC721("CryptoChangos", "CC") {} // TODO
 
-  // function _baseURI() internal pure override returns (string memory) {
-  //   return "";
-  // }
+  function _baseURI() internal pure override returns (string memory) {
+    return "ipfs://ipfs/";
+  }
 
   // Anybody can mint 1 token for free and 1 token only.
   // Owner has unlimited mints.

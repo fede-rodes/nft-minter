@@ -23,13 +23,15 @@
     "allowJs": true,
     "checkJs": true,
     "paths": {
-      "$lib/*": ["src/components/*"],
+      "$lib/*": ["src/lib/*"],
+      "$types/*": ["src/types/*"],
       "$components/*": ["src/components/*"],
       "$utils/*": ["src/utils/*"],
       "$stores/*": ["src/stores/*"],
       "$assets/*": ["src/assets/*"],
       "$artifacts/*": ["src/artifacts/*"],
-      "$contracts/*": ["src/contracts/*"]
+      "$contracts/*": ["src/contracts/*"],
+      "$database/*": ["src/database/*"]
     }
   },
   "include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"]
