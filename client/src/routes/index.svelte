@@ -22,7 +22,6 @@
 </script>
 
 <script lang="ts">
-  // import type { ContractTransaction } from 'ethers'
   import { signer, signerAddress } from 'svelte-ethers-store'
   import type { INFT } from '$types/index'
   import { api } from '$api/index'
@@ -36,8 +35,7 @@
   export let maxSupply: number
 
   let minting = false
-  // let mintedTokenId: number
-  let tokenId: INFT
+  let mintedNFT: INFT
 
   const refetchStats = async () => {
     try {
@@ -55,17 +53,21 @@
     let tokenURI: string
 
     try {
-      // This is a hash stored in IPFS.
+      // Get hash from DB. Each hash points to a JSON file stored on IPFS.
+      // which contains some metadata plus a reference to the image.
       tokenURI = await api.getNextMintableToken()
 
       if (tokenURI == null) throw new Error('All NFTs have been minted')
 
-      // Set hash status to 'MINTING' so that other users cannot mint the same token.
+      // Update DB to prevent users from grabbing the same hash.
       await api.updateTokenData(tokenURI, 'MINTING')
 
       // Store token hash into the blockchain and transfer it to the connected account.
       const minter = new Minter($signer)
       const tokenId = await minter.mint(tokenURI)
+
+      // Display NFT on UI.
+      mintedNFT = { tokenId, tokenURI }
 
       // In case minting process went fine, update hash status to 'MINTED'.
       await api.updateTokenData(tokenURI, 'MINTED', tokenId)
@@ -101,9 +103,9 @@
     </button>
   {/if}
 
-  {#if tokenId != null}
-    {#key tokenId.tokenId}
-      <NFT nft={tokenId} />
+  {#if mintedNFT != null}
+    {#key mintedNFT.tokenId}
+      <NFT nft={mintedNFT} />
     {/key}
   {/if}
 </section>
