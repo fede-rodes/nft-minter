@@ -1,9 +1,9 @@
 import type { INFT } from '$types/index'
 
 class API {
-  async getNextMintableToken(): Promise<INFT> {
+  async getNextMintableToken(): Promise<string> {
     const res = await fetch('/api/get-next-mintable-token')
-    return (await res.json()).nft as INFT
+    return (await res.json()).tokenURI as string
   }
 
   async updateTokenData(
