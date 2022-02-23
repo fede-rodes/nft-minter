@@ -28,7 +28,7 @@ export class Minter extends Contract {
     )
 
     // Get token URIs.
-    const promises = []
+    const promises: Promise<string>[] = []
 
     tokenIds.forEach((tokenId) => {
       promises.push(this.tokenURI(tokenId))
@@ -36,7 +36,7 @@ export class Minter extends Contract {
 
     const tokenURIs = await Promise.all(promises)
 
-    const nfts = tokenIds.map((tokenId, index) => ({ tokenId, tokenURI: tokenURIs[index] }))
+    const nfts = tokenIds.map((tokenId, index) => ({ tokenId, tokenURI: tokenURIs[index] })) as INFT[]
 
     return nfts
   }
