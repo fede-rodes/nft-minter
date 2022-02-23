@@ -1,5 +1,4 @@
-import type { INFT } from '$types/index'
-
+// TODO: handle error case. Should we throw?
 class API {
   async getNextMintableToken(): Promise<string> {
     const res = await fetch('/api/get-next-mintable-token')
