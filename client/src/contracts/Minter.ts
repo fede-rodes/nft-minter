@@ -31,7 +31,7 @@ export class Minter extends Contract {
     const promises: Promise<string>[] = []
 
     tokenIds.forEach((tokenId) => {
-      promises.push(this.tokenURI(tokenId))
+      promises.push(this.tokenURI(tokenId) as Promise<string>)
     })
 
     const tokenURIs = await Promise.all(promises)
