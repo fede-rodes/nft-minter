@@ -9,6 +9,7 @@ export class Minter extends Contract {
     super(import.meta.env.VITE_MINTER_CONTRACT_ADDRESS, artifact.abi, signerOrProvider)
   }
 
+  // Mint a new token for the given tokenURI.
   async mint(tokenURI: string): Promise<number> {
     const tx = (await this.mintNFT(tokenURI, {
       gasLimit: 2000000, // TODO: set gasLimit
@@ -22,6 +23,7 @@ export class Minter extends Contract {
     return tokenId
   }
 
+  // Query tokens by address.
   async tokensByAddress(address: string): Promise<INFT[]> {
     const tokenIds = ((await this.tokensOfOwner(address)) as BigNumber[]).map((bn) =>
       parseInt(bn.toString(), 10),
@@ -36,8 +38,21 @@ export class Minter extends Contract {
 
     const tokenURIs = await Promise.all(promises)
 
-    const nfts = tokenIds.map((tokenId, index) => ({ tokenId, tokenURI: tokenURIs[index] })) as INFT[]
+    const nfts = tokenIds.map((tokenId, index) => ({
+      tokenId,
+      tokenURI: tokenURIs[index],
+    })) as INFT[]
 
     return nfts
+  }
+
+  // Total number of tokens minted so far.
+  async tokensCount(): Promise<number> {
+    return parseInt(((await this.count()) as BigNumber).toString(), 10)
+  }
+
+  // Tokens MAX_SUPPLY.
+  async maxSupply(): Promise<number> {
+    return parseInt(((await this.MAX_SUPPLY()) as BigNumber).toString(), 10)
   }
 }

@@ -1,4 +1,4 @@
-import { providers, BigNumber } from 'ethers'
+import { providers } from 'ethers'
 import { Minter } from '$contracts/Minter'
 
 const CHAIN_ID = parseInt(import.meta.env.VITE_CHAIN_ID, 10)
@@ -22,10 +22,10 @@ export const get = async () => {
     const minter = new Minter(provider)
 
     // Number of NFTs minted so far.
-    const nftsCount = parseInt(((await minter.count()) as BigNumber).toString(), 10)
+    const nftsCount = await minter.tokensCount()
 
-    // Get tokens MAX_SUPPLY
-    const maxSupply = parseInt(((await minter.MAX_SUPPLY()) as BigNumber).toString(), 10)
+    // Tokens MAX_SUPPLY.
+    const maxSupply = await minter.maxSupply()
 
     return {
       body: {
