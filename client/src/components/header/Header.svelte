@@ -1,11 +1,23 @@
 <script lang="ts">
+  import { signer, signerAddress } from 'svelte-ethers-store'
   import { page } from '$app/stores'
   import logo from '$assets/svelte-logo.svg'
+  import { shortAddress } from '$utils/short-address'
+
+  interface IRoute {
+    pathname: string
+    label: string
+  }
+
+  const routes: IRoute[] = [
+    { pathname: '/', label: 'Mint' },
+    { pathname: '/my-nfts', label: 'My NFTs' },
+  ]
 </script>
 
 <header>
   <div class="corner">
-    <a href="https://kit.svelte.dev">
+    <a href="/">
       <img src={logo} alt="SvelteKit" />
     </a>
   </div>
@@ -15,14 +27,22 @@
       <path d="M0,0 L1,2 C1.5,3 1.5,3 2,3 L2,0 Z" />
     </svg>
     <ul>
-      <li class:active={$page.url.pathname === '/'}><a sveltekit:prefetch href="/">Home</a></li>
+      {#each routes as { pathname, label }}
+        <li class:active={$page.url.pathname === pathname}>
+          <a sveltekit:prefetch href={pathname}>{label}</a>
+        </li>
+      {/each}
     </ul>
     <svg viewBox="0 0 2 3" aria-hidden="true">
       <path d="M0,0 L0,3 C0.5,3 0.5,3 1,2 L2,0 Z" />
     </svg>
   </nav>
 
-  <div class="corner" />
+  <div class="corner">
+    {#if $signer != null}
+      {shortAddress($signerAddress)}
+    {/if}
+  </div>
 </header>
 
 <style>
@@ -32,7 +52,7 @@
   }
 
   .corner {
-    width: 3em;
+    /* width: 3em; */
     height: 3em;
   }
 

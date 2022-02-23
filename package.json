@@ -8,7 +8,7 @@
     "install": "cd server && yarn install && cd .. && cd client && yarn install",
     "clean:build": "cd server && rm -rf cache && cd .. && cd client/src && rm -rf artifacts",
     "build:server": "yarn run clean:build && cd server && yarn run build",
-    "dev": "concurrently \"cd server && yarn run dev\" \"cd client && yarn run dev\"",
+    "dev": "concurrently \"cd server && yarn run dev\" \"cd client && yarn run init:db && yarn run dev\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

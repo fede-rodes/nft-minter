@@ -1,14 +1,15 @@
 <script context="module" lang="ts">
   /** @type {import('@sveltejs/kit').Load} */
   export const load = async ({ fetch }) => {
-    const res = await fetch('/api/nfts')
+    // TODO: can we move this logic inside api?
+    const res = await fetch('/api/get-contract-stats')
 
     if (res.ok) {
-      const { nfts, maxSupply } = await res.json()
+      const { nftsCount, maxSupply } = await res.json()
 
       return {
         props: {
-          nfts,
+          nftsCount,
           maxSupply,
         },
       }
@@ -22,82 +23,63 @@
 </script>
 
 <script lang="ts">
-  import type { ContractTransaction } from 'ethers'
-  import { signer } from 'svelte-ethers-store'
-  import { MinterContract } from '$contracts/Minter'
+  import { signer, signerAddress } from 'svelte-ethers-store'
+  import type { INFT } from '$types/index'
+  import { api } from '$api/index'
+  import { Minter } from '$contracts/Minter'
+  import { Wallet } from '$components/wallet'
   import { NFT } from '$components/nft'
 
   const COLLECTION_NAME = import.meta.env.VITE_COLLECTION_NAME
 
-  interface INFT {
-    tokenId: number
-    tokenURI: string
-  }
-
-  export let nfts: INFT[] | [] = []
+  export let nftsCount = 0
   export let maxSupply: number
 
-  // TODO: this should come from the server in order to know what's the
-  // next NFT to be minted. Other apporach could be trying to set baseURI
-  // inside the Minter smart contract and forget about passing the
-  // tokenURI from the client.
-  const NFTs: INFT[] = [
-    {
-      tokenId: 1,
-      tokenURI: 'ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/1.json',
-    },
-    {
-      tokenId: 2,
-      tokenURI: 'ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/2.json',
-    },
-    {
-      tokenId: 3,
-      tokenURI: 'ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/3.json',
-    },
-    {
-      tokenId: 4,
-      tokenURI: 'ipfs://QmXhfZ3BcBdfwT7tPxxHScYG5ZzDbq36NUdjKFYm6wTEZJ/4.json',
-    },
-  ]
-
   let minting = false
-  let mintedTokenId: number
-  $: mintedNFT = NFTs.find(({ tokenId }) => tokenId === mintedTokenId)
+  let mintedNFT: INFT
 
-  const refetchNFTs = async () => {
+  const refetchStats = async () => {
     try {
+      // TODO: move to api.
       const res = await load({ fetch })
-      nfts = res.props.nfts
+      // TODO: handle error case / test
+      nftsCount = res.props.nftsCount
+      maxSupply = res.props.maxSupply
     } catch (err) {
-      alert(`Error during NFTs refetching: ${err}`)
+      alert(`Error during stats refetching: ${err}`)
     }
   }
 
   const handleMint = async () => {
+    let tokenURI: string
+
+    minting = true
+
     try {
-      minting = true
+      // Get a new hash from the DB. Each hash points to a JSON file
+      // stored on IPFS which contains some metadata plus a reference
+      // to the NFT image, also stored on IPFS.
+      tokenURI = await api.getNextMintableToken()
 
-      const minter = new MinterContract($signer)
-      // Get next NFT to be minted based on the latest minted index.
-      const nextNFT = NFTs.find(({ tokenId }) => tokenId === nfts.length + 1)
+      if (tokenURI == null) throw new Error('All NFTs have been minted')
 
-      if (nextNFT == null) {
-        alert('All NFTs have been minted')
-        minting = false
-        return
-      }
+      // Update DB to prevent users from grabbing the same hash.
+      await api.updateTokenData(tokenURI, 'MINTING')
 
-      const tx = (await minter.mintNFT(nextNFT.tokenURI, {
-        gasLimit: 2000000, // TODO: set gasLimit
-      })) as ContractTransaction
-      const txReceipt = await tx.wait()
+      // Store token hash into the blockchain and transfer it to the
+      // connected account.
+      const minter = new Minter($signer)
+      const tokenId = await minter.mint(tokenURI)
 
-      // Get latest minted NFT to be display on the UI.
-      const event = txReceipt?.events ? txReceipt.events[0] : null
-      const value = event?.args ? event.args[2] : null
-      mintedTokenId = value.toNumber()
+      // Display NFT on UI.
+      // TODO: use a store so that we can go back and forth bettwen the
+      // mint and my-nfts page and still see the latest minted NFT
+      mintedNFT = { tokenId, tokenURI }
 
-      await refetchNFTs()
+      // In case the minting process went fine, update hash status to 'MINTED'.
+      await api.updateTokenData(tokenURI, 'MINTED', tokenId)
+
+      await refetchStats()
     } catch (err) {
       alert(`Error during mint: ${JSON.stringify(err, null, 2)}`)
     }
@@ -107,22 +89,25 @@
 </script>
 
 <svelte:head>
-  <title>Home</title>
+  <title>Mint</title>
 </svelte:head>
 
 <section>
   <h1>{COLLECTION_NAME}</h1>
 
   <h2>
-    {nfts.length}/{maxSupply}
+    {nftsCount}/{maxSupply}
     <br />
     {COLLECTION_NAME} minted
   </h2>
 
-  <button type="button" disabled={$signer == null || minting} on:click={handleMint}>{minting ? 'Minting...' : 'Mint'}</button>
-
-  {#if $signer == null}
+  {#if $signer == null || $signerAddress == null}
+    <Wallet />
     <p>Please, connect your wallet!</p>
+  {:else}
+    <button type="button" disabled={minting} on:click={handleMint}>
+      {minting ? 'Minting...' : 'Mint'}
+    </button>
   {/if}
 
   {#if mintedNFT != null}
