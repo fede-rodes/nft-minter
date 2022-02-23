@@ -1,4 +1,9 @@
 import fs from 'fs/promises'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 interface INFT {
   tokenId?: number
@@ -7,8 +12,7 @@ interface INFT {
 }
 
 class DB {
-  // TODO: fix path
-  path = '/home/federodes/Workspace/nft-minter/client/src/database/nfts.json'
+  path = `${__dirname}/nfts.json`
 
   async read(): Promise<INFT[]> {
     const data = await fs.readFile(this.path)

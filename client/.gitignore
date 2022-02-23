@@ -10,3 +10,4 @@ node_modules
 .output
 /src/artifacts/**/*.json
 !/src/artifacts/contracts/Minter.sol/Minter.json
+/src/database/nfts.json

@@ -11,7 +11,7 @@ export const get = async () => {
 
     return {
       body: {
-        nft,
+        tokenURI: nft?.tokenURI,
       },
     }
   } catch (err) {
