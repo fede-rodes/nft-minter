@@ -25,6 +25,7 @@
   import type { ContractTransaction } from 'ethers'
   import { signer, signerAddress } from 'svelte-ethers-store'
   import type { INFT } from '$types/index'
+  import { api } from '$api/index'
   import { Minter } from '$contracts/Minter'
   import { Wallet } from '$components/wallet'
   import { NFT } from '$components/nft'
@@ -49,36 +50,27 @@
   }
 
   const handleMint = async () => {
+    minting = true
+
     try {
-      minting = true
+      // Grab a token hash from DB that is still pending to be minted.
+      const nextNFT = await api.getNextMintableToken()
 
+      if (nextNFT == null) throw new Error('All NFTs have been minted')
+
+      // Update token status on DB to reflect the current status.
+      await api.updateTokenData(nextNFT.tokenURI, 'MINTING')
+
+      // TODO: move this logic inside Minter contract class
+      // params tokenURI, returns mintedNFT
       const minter = new Minter($signer)
-
-      const res = await fetch('/api/get-next-mintable-token')
-      const nextNFT = (await res.json()).nft as INFT
-
-      if (nextNFT == null) {
-        alert('All NFTs have been minted')
-        minting = false
-        return
-      }
-
-      await fetch('/api/update-token-data', {
-        method: 'POST',
-        body: JSON.stringify({
-          tokenURI: nextNFT.tokenURI,
-          status: 'MINTING',
-        }),
-        headers: { 'content-type': 'application/json' },
-      })
-
       const tx = (await minter.mintNFT(nextNFT.tokenURI, {
         gasLimit: 2000000, // TODO: set gasLimit
       })) as ContractTransaction
 
+      // Get minted NFT to be display on the UI.
       const txReceipt = await tx.wait()
 
-      // Get minted NFT to be display on the UI.
       const event = txReceipt?.events ? txReceipt.events[0] : null
       const value = event?.args ? event.args[2] : null
 
@@ -89,19 +81,13 @@
         tokenURI: nextNFT.tokenURI,
       }
 
-      await fetch('/api/update-token-data', {
-        method: 'POST',
-        body: JSON.stringify({
-          tokenURI: nextNFT.tokenURI,
-          status: 'MINTED',
-          tokenId: mintedTokenId,
-        }),
-        headers: { 'content-type': 'application/json' },
-      })
+      // Update token status on DB so that no one else can mint this same token.
+      await api.updateTokenData(nextNFT.tokenURI, 'MINTED', mintedTokenId)
 
-      await refetchStats()
+      await refetchStats() // TODO: move to api.
     } catch (err) {
       alert(`Error during mint: ${JSON.stringify(err, null, 2)}`)
+      // TODO: await api.updateTokenData(nextNFT.tokenURI, 'FAILED', mintedTokenId)
     }
 
     minting = false
@@ -121,13 +107,13 @@
     {COLLECTION_NAME} minted
   </h2>
 
-  <button type="button" disabled={$signer == null || minting} on:click={handleMint}
-    >{minting ? 'Minting...' : 'Mint'}</button
-  >
-
-  {#if $signerAddress == null}
+  {#if $signer == null || $signerAddress == null}
     <Wallet />
     <p>Please, connect your wallet!</p>
+  {:else}
+    <button type="button" disabled={minting} on:click={handleMint}>
+      {minting ? 'Minting...' : 'Mint'}
+    </button>
   {/if}
 
   {#if mintedNFT != null}
