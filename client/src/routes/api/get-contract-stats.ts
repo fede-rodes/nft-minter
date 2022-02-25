@@ -1,3 +1,4 @@
+import type { EndpointOutput } from '@sveltejs/kit'
 import { providers } from 'ethers'
 import { Minter } from '$contracts/Minter'
 
@@ -11,8 +12,7 @@ const RPC_URLS = {
   1337: 'http://127.0.0.1:8545',
 }
 
-/** @type {import('@sveltejs/kit').RequestHandler} */
-export const get = async () => {
+export const get = async (): Promise<EndpointOutput> => {
   // Using a `network` provider to query data regardless of the user logged in state.
   // By using a `network` provider we can perform calls to the Ethereum blockchain (for
   // instance getting some public variable's value) but we cannot sign any transactions.
