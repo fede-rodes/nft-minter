@@ -1,12 +1,19 @@
+import type { EndpointOutput } from '@sveltejs/kit'
 import { db } from '$database/index'
 
-// Update token status and possibly tokenId for the given tokenURI.
+interface IUpdateTokenDataBody {
+  tokenURI: string
+  status: 'MINTING' | 'MINTED'
+  tokenId?: number
+}
 
-// TODO: add types
-/** @type {import('@sveltejs/kit').RequestHandler} */
-export const post = async ({ request }) => {
+/**
+ * @summary Update token status and possibly tokenId for the given tokenURI.
+ */
+export const post = async ({ request }: { request: Request }): Promise<EndpointOutput> => {
   try {
-    const { tokenURI, status, tokenId } = await request.json() // request body
+    // Request body.
+    const { tokenURI, status, tokenId } = (await request.json()) as IUpdateTokenDataBody
 
     const nfts = await db.read()
 

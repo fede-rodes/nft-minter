@@ -2,7 +2,7 @@
   /** @type {import('@sveltejs/kit').Load} */
   export const load = async ({ fetch }) => {
     // TODO: can we move this logic inside api?
-    const res = await fetch('/api/get-contract-stats')
+    const res = (await fetch('/api/get-contract-stats')) as Response
 
     if (res.ok) {
       const { nftsCount, maxSupply } = await res.json()
@@ -41,8 +41,9 @@
   const refetchStats = async () => {
     try {
       // TODO: move to api.
+      // TODO: test
       const res = await load({ fetch })
-      // TODO: handle error case / test
+      if (res.error != null) throw res.error
       nftsCount = res.props.nftsCount
       maxSupply = res.props.maxSupply
     } catch (err) {

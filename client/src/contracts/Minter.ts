@@ -1,6 +1,5 @@
-import type { ContractTransaction } from 'ethers'
 import { Contract, providers, BigNumber } from 'ethers'
-import type { Signer } from 'ethers'
+import type { Signer, ContractTransaction } from 'ethers'
 import artifact from '$artifacts/contracts/Minter.sol/Minter.json'
 import type { INFT } from '$types/index'
 
@@ -9,7 +8,9 @@ export class Minter extends Contract {
     super(import.meta.env.VITE_MINTER_CONTRACT_ADDRESS, artifact.abi, signerOrProvider)
   }
 
-  // Mint a new token for the given tokenURI.
+  /**
+   * @summary Mint a new token for the given tokenURI.
+   */
   async mint(tokenURI: string): Promise<number> {
     const tx = (await this.mintNFT(tokenURI, {
       gasLimit: 2000000, // TODO: set gasLimit
@@ -23,7 +24,9 @@ export class Minter extends Contract {
     return tokenId
   }
 
-  // Query tokens by address.
+  /**
+   * @summary Query tokens by address.
+   */
   async tokensByAddress(address: string): Promise<INFT[]> {
     const tokenIds = ((await this.tokensOfOwner(address)) as BigNumber[]).map((bn) =>
       parseInt(bn.toString(), 10),
