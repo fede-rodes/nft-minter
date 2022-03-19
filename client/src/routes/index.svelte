@@ -1,32 +1,30 @@
 <script context="module" lang="ts">
   /** @type {import('@sveltejs/kit').Load} */
   export const load = async ({ fetch }) => {
-    // TODO: can we move this logic inside api?
+    // TODO: can we move this logic inside api? We should pass fetch as
+    // a param
     const res = (await fetch('/api/get-contract-stats')) as Response
+    const json = await res.json()
 
     if (res.ok) {
-      const { nftsCount, maxSupply } = await res.json()
-
       return {
-        props: {
-          nftsCount,
-          maxSupply,
-        },
+        props: json,
       }
     }
 
     return {
       status: 500,
-      error: new Error(`Could not load ${JSON.stringify(await res.json())}`),
+      error: new Error(`Could not load ${JSON.stringify(json)}`),
     }
   }
 </script>
 
 <script lang="ts">
   import { signer, signerAddress } from 'svelte-ethers-store'
-  import type { INFT } from '$types/index'
   import { api } from '$api/index'
+  import type { INFT } from '$types/index';
   import { Minter } from '$contracts/Minter'
+  import { mintedNFT } from '$stores/minted-nft'
   import { Wallet } from '$components/wallet'
   import { NFT } from '$components/nft'
 
@@ -36,11 +34,9 @@
   export let maxSupply: number
 
   let minting = false
-  let mintedNFT: INFT
 
   const refetchStats = async () => {
     try {
-      // TODO: move to api.
       // TODO: test
       const res = await load({ fetch })
       if (res.error != null) throw res.error
@@ -73,9 +69,7 @@
       const tokenId = await minter.mint(tokenURI)
 
       // Display NFT on UI.
-      // TODO: use a store so that we can go back and forth bettwen the
-      // mint and my-nfts page and still see the latest minted NFT
-      mintedNFT = { tokenId, tokenURI }
+      mintedNFT.set({ tokenId, tokenURI })
 
       // In case the minting process went fine, update hash status to 'MINTED'.
       await api.updateTokenData(tokenURI, 'MINTED', tokenId)
@@ -111,9 +105,9 @@
     </button>
   {/if}
 
-  {#if mintedNFT != null}
-    {#key mintedNFT.tokenId}
-      <NFT nft={mintedNFT} />
+  {#if $mintedNFT != null}
+    {#key $mintedNFT.tokenId}
+      <NFT nft={$mintedNFT} />
     {/key}
   {/if}
 </section>

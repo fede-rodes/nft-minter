@@ -1,4 +1,20 @@
+// interface IStats {
+//   nftsCount: number
+//   maxSupply: number
+// }
+
 class API {
+  // async getContractStats(fetch): Promise<IStats> {
+  //   const res = (await fetch('/api/get-contract-stats')) as Response
+  //   const json = await res.json()
+
+  //   if (res.ok) {
+  //     return json as IStats
+  //   }
+
+  //   throw new Error(JSON.stringify(json))
+  // }
+
   async getNextMintableToken(): Promise<string> {
     const res = (await fetch('/api/get-next-mintable-token')) as Response
     const json = await res.json()
