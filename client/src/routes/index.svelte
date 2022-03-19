@@ -22,9 +22,8 @@
 <script lang="ts">
   import { signer, signerAddress } from 'svelte-ethers-store'
   import { api } from '$api/index'
-  import type { INFT } from '$types/index';
   import { Minter } from '$contracts/Minter'
-  import { mintedNFT } from '$stores/minted-nft'
+  import { mintedNFT } from '$stores/minted_nft'
   import { Wallet } from '$components/wallet'
   import { NFT } from '$components/nft'
 
