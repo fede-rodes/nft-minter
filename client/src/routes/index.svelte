@@ -55,8 +55,6 @@
       // to the NFT image, also stored on IPFS.
       tokenURI = await api.getNextMintableToken()
 
-      if (tokenURI == null) throw new Error('All NFTs have been minted')
-
       // Update DB to prevent users from grabbing the same hash.
       await api.updateTokenData(tokenURI, 'MINTING')
 

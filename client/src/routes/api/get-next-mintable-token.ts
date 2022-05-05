@@ -10,9 +10,11 @@ export const get = async (): Promise<EndpointOutput> => {
 
     const nft = nfts.find((nft) => nft.status === 'MINTABLE')
 
+    if (nft == null) throw new Error('All NFTs have been minted')
+
     return {
       body: {
-        tokenURI: nft?.tokenURI,
+        tokenURI: nft.tokenURI,
       },
     }
   } catch (err) {

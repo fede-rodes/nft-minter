@@ -4,7 +4,7 @@
 // }
 
 class API {
-  // async getContractStats(fetch): Promise<IStats> {
+  // async getContractStats(fetch: any): Promise<IStats> {
   //   const res = (await fetch('/api/get-contract-stats')) as Response
   //   const json = await res.json()
 
