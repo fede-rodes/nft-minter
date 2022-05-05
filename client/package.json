@@ -37,6 +37,6 @@
   "type": "module",
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
-    "svelte-ethers-store": "^0.6.2"
+    "svelte-ethers-store": "^2.3.1"
   }
 }

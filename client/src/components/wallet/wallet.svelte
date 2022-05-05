@@ -12,9 +12,9 @@
 
     try {
       await defaultEvmStores.setProvider()
-      console.log('$connected', defaultEvmStores.$connected)
-      console.log('$provider', defaultEvmStores.$provider)
-      console.log('$signer', defaultEvmStores.$signer)
+      console.log('$connected', $connected)
+      console.log('$provider', $provider)
+      console.log('$signer', $signer)
     } catch (err) {
       console.log(err)
     }

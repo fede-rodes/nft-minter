@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { signer, signerAddress } from 'svelte-ethers-store'
+  import { onMount } from 'svelte'
+  import { connected, signer, signerAddress } from 'svelte-ethers-store'
   import type { INFT } from '$types/index'
-  import { Minter } from '$contracts/Minter'
+  import { Minter } from '$contracts/minter'
   import { Wallet } from '$components/wallet'
   import { NFT } from '$components/nft'
 
@@ -10,7 +11,7 @@
   let nfts: INFT[] = []
 
   const fetchNFTs = async (): Promise<void> => {
-    if ($signer == null || $signerAddress == null) {
+    if (!$connected) {
       nfts = []
       return
     }
@@ -23,11 +24,7 @@
     }
   }
 
-  $: {
-    if ($signer != null) {
-      fetchNFTs()
-    }
-  }
+  onMount(fetchNFTs)
 </script>
 
 <svelte:head>
@@ -39,7 +36,7 @@
 
   <h2>Tokens minted: {nfts.length}</h2>
 
-  {#if $signerAddress == null}
+  {#if !$connected}
     <Wallet />
     <p>Please, connect your wallet!</p>
   {/if}

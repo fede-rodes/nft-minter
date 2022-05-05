@@ -36,5 +36,6 @@
       "$database/*": ["src/database/*"]
     }
   },
-  "include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"]
+  "include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"],
+  "typeRoots": ["./node_modules/@types", "./src/types"]
 }
