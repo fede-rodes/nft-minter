@@ -1,11 +1,11 @@
 import type { EndpointOutput } from '@sveltejs/kit'
 import { providers } from 'ethers'
-import { Minter } from '$contracts/Minter'
+import { Minter } from '$contracts/minter'
 
 const CHAIN_ID = parseInt(import.meta.env.VITE_CHAIN_ID, 10)
 const INFURA_PROJECT_ID = import.meta.env.VITE_INFURA_PROJECT_ID
 
-const RPC_URLS = {
+const RPC_URLS: { [chainId: number]: string } = {
   1: `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   4: `https://rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
   42: `https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`,

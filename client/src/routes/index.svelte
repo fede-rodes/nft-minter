@@ -1,8 +1,6 @@
 <script context="module" lang="ts">
   /** @type {import('@sveltejs/kit').Load} */
   export const load = async ({ fetch }) => {
-    // TODO: can we move this logic inside api? We should pass fetch as
-    // a param
     const res = (await fetch('/api/get-contract-stats')) as Response
     const json = await res.json()
 
@@ -20,9 +18,9 @@
 </script>
 
 <script lang="ts">
-  import { signer, signerAddress } from 'svelte-ethers-store'
+  import { connected, signer } from 'svelte-ethers-store'
   import { api } from '$api/index'
-  import { Minter } from '$contracts/Minter'
+  import { Minter } from '$contracts/minter'
   import { mintedNFT } from '$stores/minted_nft'
   import { Wallet } from '$components/wallet'
   import { NFT } from '$components/nft'
@@ -97,8 +95,9 @@
     {COLLECTION_NAME} minted
   </h2>
 
-  {#if $signer == null || $signerAddress == null}
-    <Wallet />
+  <Wallet />
+
+  {#if !$connected}
     <p>Please, connect your wallet!</p>
   {:else}
     <button type="button" disabled={minting} on:click={handleMint}>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { signer, signerAddress } from 'svelte-ethers-store'
+  import { connected, signerAddress } from 'svelte-ethers-store'
   import { page } from '$app/stores'
   import logo from '$assets/svelte-logo.svg'
   import { shortAddress } from '$utils/short-address'
@@ -39,7 +39,7 @@
   </nav>
 
   <div class="corner">
-    {#if $signer != null}
+    {#if $connected}
       {shortAddress($signerAddress)}
     {/if}
   </div>
