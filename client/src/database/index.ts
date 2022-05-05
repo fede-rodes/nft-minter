@@ -1,26 +1,21 @@
 import fs from 'fs/promises'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
+import type { DBItem } from '$types/index'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-interface INFT {
-  tokenId?: number
-  tokenURI: string
-  status: 'MINTABLE' | 'MINTING' | 'MINTED'
-}
-
 class DB {
-  path = `${__dirname}/nfts.json`
+  path = `${__dirname}/items.json`
 
-  async read(): Promise<INFT[]> {
+  async read(): Promise<DBItem[]> {
     const data = await fs.readFile(this.path)
-    return JSON.parse(data.toString('utf8')).nfts as INFT[]
+    return JSON.parse(data.toString('utf8')).items as DBItem[]
   }
 
-  async write(nfts: INFT[]): Promise<void> {
-    const data = JSON.stringify({ nfts })
+  async write(items: DBItem[]): Promise<void> {
+    const data = JSON.stringify({ items })
     await fs.writeFile(this.path, data)
   }
 }

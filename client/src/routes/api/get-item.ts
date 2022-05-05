@@ -1,20 +1,21 @@
 import type { EndpointOutput } from '@sveltejs/kit'
 import { db } from '$database/index'
 
-// Get next mintable NFT by simulating a DB read...
-
-/** @type {import('@sveltejs/kit').RequestHandler} */
+/**
+ * @summary Get next mintable item from DB
+ */
+// @type {import('@sveltejs/kit').RequestHandler}
 export const get = async (): Promise<EndpointOutput> => {
   try {
-    const nfts = await db.read()
+    const items = await db.read()
 
-    const nft = nfts.find((nft) => nft.status === 'MINTABLE')
+    const item = items.find((item) => item.status === 'MINTABLE')
 
-    if (nft == null) throw new Error('All NFTs have been minted')
+    if (item == null) throw new Error('All items have been minted')
 
     return {
       body: {
-        tokenURI: nft.tokenURI,
+        item: JSON.stringify(item),
       },
     }
   } catch (err) {

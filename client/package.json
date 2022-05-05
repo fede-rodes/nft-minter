@@ -12,7 +12,7 @@
     "format": "prettier --ignore-path .gitignore --write --plugin-search-dir=. .",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "init:db": "cp ./src/database/fixture.json ./src/database/nfts.json"
+    "init:db": "cp ./src/database/fixture2.json ./src/database/items.json"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "next",
@@ -37,6 +37,7 @@
   "type": "module",
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
+    "ipfs-http-client": "^56.0.3",
     "svelte-ethers-store": "^2.3.1"
   }
 }

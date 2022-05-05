@@ -18,10 +18,12 @@
 </script>
 
 <script lang="ts">
+  import { ethers } from 'ethers'
   import { connected, signer } from 'svelte-ethers-store'
+  import type { DBItem } from '$types/index'
   import { api } from '$api/index'
   import { Minter } from '$contracts/minter'
-  import { mintedNFT } from '$stores/minted_nft'
+  import { mintedNFT } from '$stores/minted-nft'
   import { Wallet } from '$components/wallet'
   import { NFT } from '$components/nft'
 
@@ -45,29 +47,31 @@
   }
 
   const handleMint = async () => {
-    let tokenURI: string
+    let item: DBItem
 
     minting = true
 
     try {
-      // Get a new hash from the DB. Each hash points to a JSON file
-      // stored on IPFS which contains some metadata plus a reference
+      // Get a new item (JSON file) from DB to be stored on IPFS.
+      // The JSON file contains some metadata plus a reference
       // to the NFT image, also stored on IPFS.
-      tokenURI = await api.getNextMintableToken()
+      item = JSON.parse(await api.getItem()) as DBItem
 
       // Update DB to prevent users from grabbing the same hash.
-      await api.updateTokenData(tokenURI, 'MINTING')
+      await api.updateItem(item.id, 'MINTING')
 
+      console.log({ item })
       // Store token hash into the blockchain and transfer it to the
       // connected account.
       const minter = new Minter($signer)
-      const tokenId = await minter.mint(tokenURI)
+      // TODO: upload item to ipfs and get hash back
+      const tokenId = await minter.mint(item.image)
 
       // Display NFT on UI.
-      mintedNFT.set({ tokenId, tokenURI })
+      mintedNFT.set({ ...item, tokenId })
 
       // In case the minting process went fine, update hash status to 'MINTED'.
-      await api.updateTokenData(tokenURI, 'MINTED', tokenId)
+      await api.updateItem(item.id, 'MINTED', tokenId)
 
       await refetchStats()
     } catch (err) {
@@ -76,6 +80,35 @@
 
     minting = false
   }
+
+  //   const ipfsAPI = require("ipfs-http-client");
+  // const ipfs = ipfsAPI({ host: "ipfs.infura.io", port: "5001", protocol: "https" });
+  // const mintItem = async () => {
+  //   // upload to ipfs
+  //   const uploaded = await ipfs.add(JSON.stringify(json[count]));
+  //   setCount(count + 1);
+  //   console.log("Uploaded Hash: ", uploaded);
+  //   const result = tx(
+  //     writeContracts &&
+  //       writeContracts.YourCollectible &&
+  //       writeContracts.YourCollectible.mintItem(address, uploaded.path),
+  //     update => {
+  //       console.log("📡 Transaction Update:", update);
+  //       if (update && (update.status === "confirmed" || update.status === 1)) {
+  //         console.log(" 🍾 Transaction " + update.hash + " finished!");
+  //         console.log(
+  //           " ⛽️ " +
+  //             update.gasUsed +
+  //             "/" +
+  //             (update.gasLimit || update.gas) +
+  //             " @ " +
+  //             parseFloat(update.gasPrice) / 1000000000 +
+  //             " gwei",
+  //         );
+  //       }
+  //     },
+  //   );
+  // };
 </script>
 
 <svelte:head>

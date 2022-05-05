@@ -1,7 +1,7 @@
 import { Contract, providers, BigNumber } from 'ethers'
 import type { Signer, ContractTransaction } from 'ethers'
 import artifact from '$artifacts/contracts/Minter.sol/Minter.json'
-import type { INFT } from '$types/index'
+import type { NFT } from '$types/index'
 
 export class Minter extends Contract {
   constructor(signerOrProvider?: providers.Provider | Signer) {
@@ -27,7 +27,7 @@ export class Minter extends Contract {
   /**
    * @summary Query tokens by address.
    */
-  async tokensByAddress(address: string): Promise<INFT[]> {
+  async tokensByAddress(address: string): Promise<NFT[]> {
     const tokenIds = ((await this.tokensOfOwner(address)) as BigNumber[]).map((bn) =>
       parseInt(bn.toString(), 10),
     )
@@ -44,7 +44,7 @@ export class Minter extends Contract {
     const nfts = tokenIds.map((tokenId, index) => ({
       tokenId,
       tokenURI: tokenURIs[index],
-    })) as INFT[]
+    })) as NFT[]
 
     return nfts
   }
