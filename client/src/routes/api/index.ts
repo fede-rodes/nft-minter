@@ -3,7 +3,6 @@
 //   maxSupply: number
 // }
 
-
 class API {
   // async getContractStats(fetch: any): Promise<IStats> {
   //   const res = (await fetch('/api/get-contract-stats')) as Response
@@ -29,11 +28,7 @@ class API {
     throw new Error(JSON.stringify(json))
   }
 
-  async updateItem(
-    id: string,
-    status: 'MINTING' | 'MINTED',
-    tokenId?: number,
-  ): Promise<void> {
+  async updateItem(id: string, status: 'MINTING' | 'MINTED', tokenId?: number): Promise<void> {
     const options: RequestInit = {
       method: 'POST',
       body: JSON.stringify({ id, status, tokenId }),

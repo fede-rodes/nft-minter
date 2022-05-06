@@ -1,14 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { connected, signer, signerAddress } from 'svelte-ethers-store'
-  import type { INFT } from '$types/index'
+  import type { NFT } from '$types/index'
   import { Minter } from '$contracts/minter'
   import { Wallet } from '$components/wallet'
-  import { NFT } from '$components/nft'
+  import { NFTImage } from '$components/nft-image'
 
   const COLLECTION_NAME = import.meta.env.VITE_COLLECTION_NAME
 
-  let nfts: INFT[] = []
+  let nfts: NFT[] = []
 
   const fetchNFTs = async (): Promise<void> => {
     if (!$connected) {
@@ -18,7 +18,10 @@
 
     try {
       const minter = new Minter($signer)
-      nfts = await minter.tokensByAddress($signerAddress)
+      nfts = (await minter.tokensByAddress($signerAddress)).map((nft) => ({
+        ...nft,
+        tokenURI: nft.tokenURI.replace('ipfs://ipfs/', ''),
+      }))
     } catch (err) {
       alert(`Error fetching: ${JSON.stringify(err, null, 2)}`)
     }
@@ -31,7 +34,7 @@
   <title>My NFTs</title>
 </svelte:head>
 
-<section>
+<section class="flex flex-col justify-center items-center flex-1">
   <h1>{COLLECTION_NAME}</h1>
 
   <h2>Tokens minted: {nfts.length}</h2>
@@ -42,17 +45,7 @@
   {/if}
 
   {#each nfts as nft (nft.tokenId)}
-    <NFT {nft} />
+    <NFTImage src={nft.tokenURI} id={nft.tokenId} />
   {/each}
 </section>
 
-<style>
-  /* TODO: this could be part of the layout */
-  section {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    flex: 1;
-  }
-</style>

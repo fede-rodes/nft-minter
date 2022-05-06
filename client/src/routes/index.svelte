@@ -25,7 +25,7 @@
   import { Minter } from '$contracts/minter'
   import { mintedNFT } from '$stores/minted-nft'
   import { Wallet } from '$components/wallet'
-  import { NFT } from '$components/nft'
+  import { NFTImage } from '$components/nft-image'
 
   const COLLECTION_NAME = import.meta.env.VITE_COLLECTION_NAME
 
@@ -115,7 +115,7 @@
   <title>Mint</title>
 </svelte:head>
 
-<section>
+<section class="flex flex-col justify-center items-center flex-1">
   <h1 class="text-3xl font-bold underline">
     {COLLECTION_NAME}
   </h1>
@@ -138,17 +138,7 @@
 
   {#if $mintedNFT != null}
     {#key $mintedNFT.tokenId}
-      <NFT nft={$mintedNFT} />
+      <NFTImage src={$mintedNFT.image} id={$mintedNFT.id} />
     {/key}
   {/if}
 </section>
-
-<style>
-  section {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    flex: 1;
-  }
-</style>
