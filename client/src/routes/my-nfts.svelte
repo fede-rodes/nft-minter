@@ -20,7 +20,7 @@
       const minter = new Minter($signer)
       nfts = (await minter.tokensByAddress($signerAddress)).map((nft) => ({
         ...nft,
-        tokenURI: nft.tokenURI.replace('ipfs://ipfs/', ''),
+        tokenURI: nft.tokenURI.replace('ipfs://ipfs/', 'https://ipfs.io/ipfs/'),
       }))
     } catch (err) {
       alert(`Error fetching: ${JSON.stringify(err, null, 2)}`)
@@ -46,6 +46,7 @@
 
   {#each nfts as nft (nft.tokenId)}
     <NFTImage src={nft.tokenURI} id={nft.tokenId} />
+    <p>{JSON.stringify(nft.tokenURI, null, 2)}</p>
   {/each}
 </section>
 

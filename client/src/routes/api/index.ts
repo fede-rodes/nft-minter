@@ -1,3 +1,5 @@
+import type { DBItem } from "$types/index"
+
 // interface IStats {
 //   nftsCount: number
 //   maxSupply: number
@@ -5,7 +7,7 @@
 
 class API {
   // async getContractStats(fetch: any): Promise<IStats> {
-  //   const res = (await fetch('/api/get-contract-stats')) as Response
+  //   const res = (await fetch('/api/get-stats')) as Response
   //   const json = await res.json()
 
   //   if (res.ok) {
@@ -38,6 +40,23 @@ class API {
     const json = await res.json()
 
     if (res.ok) return
+
+    throw new Error(JSON.stringify(json))
+  }
+
+  async uploadItem(item: DBItem): Promise<string> {
+    const options: RequestInit = {
+      method: 'POST',
+      body: JSON.stringify(item),
+      headers: { 'content-type': 'application/json' },
+    }
+    const res = (await fetch('/api/upload-item', options)) as Response
+    const json = await res.json()
+    console.log({ json })
+
+    if (res.ok) {
+      return json.cid as string
+    }
 
     throw new Error(JSON.stringify(json))
   }

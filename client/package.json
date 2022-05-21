@@ -37,7 +37,7 @@
   "type": "module",
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
-    "ipfs-http-client": "^56.0.3",
+    "ipfs-core": "^0.14.3",
     "svelte-ethers-store": "^2.3.1"
   }
 }
