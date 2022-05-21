@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "clean:deps": "rm -rf node_modules && cd server && rm -rf node_modules && cd .. && cd client && rm -rf node_modules",
-    "install": "cd server && yarn install && cd .. && cd client && yarn install",
-    "clean:build": "cd server && rm -rf cache && cd .. && cd client/src && rm -rf artifacts",
-    "build:server": "yarn run clean:build && cd server && yarn run build",
-    "dev": "concurrently \"cd server && yarn run dev\" \"cd client && yarn run init:db && yarn run dev\"",
+    "clean:deps": "rm -rf node_modules && cd web3-server && rm -rf node_modules && cd .. && cd client && rm -rf node_modules",
+    "install": "cd web3-server && yarn install && cd .. && cd client && yarn install",
+    "clean:build": "cd web3-server && rm -rf cache && cd .. && cd client/src && rm -rf artifacts",
+    "build:server": "yarn run clean:build && cd web3-server && yarn run build",
+    "dev": "concurrently \"cd web3-server && yarn run dev\" \"cd client && yarn run init:db && yarn run dev\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
